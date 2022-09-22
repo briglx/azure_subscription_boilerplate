@@ -75,13 +75,15 @@ az login --tenant $AZURE_TENANT_ID
 
 # Create an Azure Active Directory application and a service principal.
 app_id=$(az ad app create --display-name $app_name --query id -o tsv)
+app_client_id=$(az ad app list --display-name $app_name --query [].appId -o tsv)
 # Save app_id to .env APP_CLIENT_ID
-echo AZURE_CLIENT_ID=$app_id >> .env
+echo AZURE_CLIENT_ID=$app_client_id >> .env
 az ad sp create --id $app_id
 
 # Assign contributor role to the app service principal
 app_sp_id=$(az ad sp list --all --display-name $app_name --query "[].id" -o tsv)
-az role assignment create --assignee $app_sp_id --role "Contributor" --scope /subscriptions/$AZURE_SUBSCRIPTION_ID
+az role assignment create --assignee $app_sp_id --role contributor --scope /subscriptions/$AZURE_SUBSCRIPTION_ID
+az role assignment create --role contributor --subscription $AZURE_SUBSCRIPTION_ID --assignee-object-id  $app_sp_id --assignee-principal-type ServicePrincipal --scope /subscriptions/$AZURE_SUBSCRIPTION_ID
 
 # Add OIDC federated credentials for the application.
 post_body="{\"name\":\"$app_secret_name\","
