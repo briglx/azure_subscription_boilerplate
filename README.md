@@ -6,6 +6,10 @@ Example project to setup a new azure subscription for development. This project 
 * Infrastructure Automation
 * Management and Landing Zone organization
 
+Network Overview
+
+![Network Overview](docs/networkoverview.png "Network Overview")
+
 # Prerequisites
 
 Prerequisites:
