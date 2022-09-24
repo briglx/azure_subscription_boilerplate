@@ -35,19 +35,19 @@ az group create --name $rg_name --location $rg_region
 vnet_name=vnet-domain-$rg_region
 echo creating $vnet_name vnet in $rg_name
 vnet_prefix='10.0.0.0/16'
-az network vnet create -g $rg_name -n $vnet_name --address-prefixes $vnet_prefix
+az network vnet create --resource-group $rg_name --name $vnet_name --address-prefixes $vnet_prefix
 
 # azure ad domain services subnet
 subnet_name=snet-add-ds
 subnet_prefix='10.0.255.0/27'
-az network vnet subnet create -g $rg_name -n $subnet_name --vnet-name $vnet_domain --address-prefixes $subnet_prefix
+az network vnet subnet create --resource-group $rg_name --name $subnet_name --vnet-name $vnet_name --address-prefixes $subnet_prefix
 
 # aadds bastion subnet
 subnet_name=AzureBastionSubnet
 subnet_prefix='10.0.255.64/27'
 ip_name=aad_bastion_ip
 bastion_name=aad_ds_bastion
-az network vnet subnet create -g $rg_name -n $subnet_name --vnet-name $vnet_domain --address-prefixes $subnet_prefix
+az network vnet subnet create --resource-group $rg_name --name $subnet_name --vnet-name $vnet_name --address-prefixes $subnet_prefix
 az network public-ip create --resource-group $rg_name --name $ip_name --sku Standard --location $rg_region
 az network bastion create --resource-group $rg_name --name $bastion_name --public-ip-address $ip_name  --vnet-name $vnet_name --location $rg_region
 
