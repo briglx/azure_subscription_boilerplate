@@ -41,8 +41,8 @@ subnet_dev=snet-dev
 subnet_dev_prefix='10.1.1.0/24'
 
 # create resource group
-echo creating $rg_name in $rg_name
-az group create -n $rg_name -l $rg_name
+echo creating $rg_name in $rg_region
+az group create -n $rg_name -l $rg_region
 
 # create core vnet
 echo creating core vnet
