@@ -1,8 +1,45 @@
 #!/bin/bash
+#######################################################
+# Connectivity RG Sctip
+# Params
+# --rg_region Resource Region. Default westus2
+#######################################################
 echo starting script
+
+# Stop on errors
+set -e
+
+# Global
+rg_region=${rg_region:-westus2}
+
+# Parse params
+while [ $# -gt 0 ]; do
+   if [[ $1 == *"--"* ]]; then
+        param="${1/--/}"
+        declare $param="$2"
+   fi
+  shift
+done
+
+rg_name=${rg_name:-rg_connectivity}_$rg_region
+
 #######################################################
 # Connectivity RG
 #######################################################
+ # Core VNet
+vnet_core=vnet-core-$rg_region
+vnet_core_prefix='10.0.0.0/16'
+subnet_aad_ds=snet-add-ds # Core - Azure AD Domain Services subnet
+subnet_aad_ds_prefix='10.0.255.0/27'
+subnet_bastion=AzureBastionSubnet
+subnet_bastion_prefix='10.0.255.64/27'
+
+# Development VNet 
+vnet_dev=vnet-dev-$rg_region
+vnet_dev_prefix='10.1.0.0/16'
+subnet_dev=snet-dev
+subnet_dev_prefix='10.1.1.0/24'
+
 # create resource group
 echo creating $rg_name in $rg_name
 az group create -n $rg_name -l $rg_name
