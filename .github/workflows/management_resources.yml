@@ -43,7 +43,7 @@ jobs:
           rg_name=rg_connectivity_$rg_region
 
           echo delete connectivity rg in $rg_region
-          az group delete --name $rg_name
+          az group delete --name $rg_name --yes
 
   Connectivity_Resources:
     name: Create Connectivity Resources
