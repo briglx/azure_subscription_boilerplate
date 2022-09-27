@@ -1,5 +1,8 @@
 name: Management RG Deployment
 on:
+  push:
+    branches:
+      - dev
   workflow_dispatch:
     inputs:
       deleteAll:
@@ -15,6 +18,14 @@ on:
         required: true
         default: 'westus2'
         type: string
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev' 
+        type: choice
+        options:
+        - dev
+        - prod 
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -25,7 +36,9 @@ jobs:
   Delete_Resources:
     name: Delete Connectivity Resources
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.deleteAll == 'true' }}
+    if: |
+      github.event.inputs.deleteAll == 'true' ||  
+      (github.event_name == 'push' && github.ref == 'refs/heads/dev')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -38,9 +51,18 @@ jobs:
       - name: Delete Resources
         id: task-delete-resources
         run: |
+
+          # Add Dev prefix
+          target_env=${{github.event.inputs.environment}}
+          prefix=''
+
+          if [ target_env == "dev" ]; then
+            prefix="DEV_"
+          fi
+
           # Get Resource Group region
           rg_region=${{github.event.inputs.location}}
-          rg_name=rg_connectivity_$rg_region
+          rg_name=$prefix_rg_connectivity_$rg_region
 
           echo delete connectivity rg in $rg_region
           az group delete --name $rg_name --yes
@@ -51,7 +73,10 @@ jobs:
     needs: Delete_Resources
     if: |
       !failure() && !cancelled() && 
-      (github.event.inputs.deployConnectivity == 'true')
+      (
+        github.event.inputs.deployConnectivity == 'true' || 
+        (github.event_name == 'push' && github.ref == 'refs/heads/dev')
+      )
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -64,8 +89,10 @@ jobs:
       - name: Create Resources
         id: task-create-resources
         run: |
-          # Get Resource Group region
-          rg_region=${{github.event.inputs.location}}
 
-          echo create connectivity rg in $rg_region
-          ./pipelines/management/connectivity.sh --rg_region $rg_region
+          # Get params
+          target_env=${{github.event.inputs.environment}}
+          rg_region=${{github.event.inputs.location}}
+          
+          echo create $target_env connectivity rg in $rg_region 
+          ./pipelines/management/connectivity.sh --rg_region $rg_region --target_env $target_env
