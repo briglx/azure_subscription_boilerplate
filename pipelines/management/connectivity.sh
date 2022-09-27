@@ -43,12 +43,12 @@ vnet_core_subnet_jump_box_cidr='10.0.1.0/29'
 vnet_core_subnet_firewall_name=snet-firewall
 vnet_core_subnet_firewall_cidr='10.0.1.8/29'
 vnet_core_subnet_management_name=snet-management
-vnet_core_subnet_management_cidr='10.0.1.16/26'
+vnet_core_subnet_management_cidr='10.0.1.64/26'
 
 vnet_dev_name=vnet-dev-$rg_region
 vnet_dev_cidr='10.1.0.0/16'
 vnet_dev_subnet_confluence_name=snet-confluence
-vnet_dev_subnet_confluence_cidr='10.1.0.0/24'
+vnet_dev_subnet_confluence_cidr='10.1.0.0/27'
 
 # connectivity resource group
 echo creating $rg_name in $rg_region
@@ -64,7 +64,7 @@ az network vnet create --resource-group $rg_name --name $vnet_core_name --addres
 # core bastion subnet
 echo creating subnet $vnet_core_subnet_bastion_name
 az network vnet subnet create --resource-group $rg_name --name $vnet_core_subnet_bastion_name --vnet-name $vnet_core_name --address-prefixes $vnet_core_subnet_bastion_cidr
-az network public-ip create --resource-group $rg_name --name $vnet_core_subnet_bastion_ip_bastion_name --sku Standard --location $rg_region
+az network public-ip create --resource-group $rg_name --name $vnet_core_subnet_bastion_ip_bastion_name --sku Standard --location $rg_region --zone 1 2 3
 az network bastion create --resource-group $rg_name --name $vnet_core_subnet_bastion_bastion_core_name --public-ip-address $vnet_core_subnet_bastion_ip_bastion_name  --vnet-name $vnet_core_name --location $rg_region
 # jumpbox subnet
 echo creating subnet $vnet_core_subnet_jump_box_name

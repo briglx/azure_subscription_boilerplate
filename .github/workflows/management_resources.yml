@@ -59,14 +59,19 @@ jobs:
           if [ target_env == "dev" ]; then
             prefix="DEV_"
           fi
-
           # Get Resource Group region
           rg_region=${{github.event.inputs.location}}
           rg_name=${prefix}rg_connectivity_${rg_region}
 
-          echo delete connectivity rg $rg_name in $rg_region
-          az group delete --name $rg_name --yes
+          {
+            echo deleting resource group $rg_name
+            az group delete --name $rg_name --yes && 
+            echo echo done deleting resource group $rg_name
 
+          } || {
+            echo failed deleting resource group $rg_name
+          }
+          
   Connectivity_Resources:
     name: Create Connectivity Resources
     runs-on: ubuntu-latest
