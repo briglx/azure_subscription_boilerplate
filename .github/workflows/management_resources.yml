@@ -67,7 +67,6 @@ jobs:
             echo deleting resource group $rg_name
             az group delete --name $rg_name --yes && 
             echo echo done deleting resource group $rg_name
-
           } || {
             echo failed deleting resource group $rg_name
           }
