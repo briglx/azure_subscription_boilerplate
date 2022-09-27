@@ -25,7 +25,7 @@ on:
         type: choice
         options:
         - dev
-        - prod 
+        - production 
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -62,9 +62,9 @@ jobs:
 
           # Get Resource Group region
           rg_region=${{github.event.inputs.location}}
-          rg_name=$prefix_rg_connectivity_$rg_region
+          rg_name=${prefix}rg_connectivity_${rg_region}
 
-          echo delete connectivity rg in $rg_region
+          echo delete connectivity rg $rg_name in $rg_region
           az group delete --name $rg_name --yes
 
   Connectivity_Resources:
