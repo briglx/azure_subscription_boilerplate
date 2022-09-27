@@ -10,6 +10,7 @@ echo starting script
 set -e
 
 # Global
+prefix=''
 rg_region=${rg_region:-westus2}
 
 # Parse params
@@ -21,10 +22,17 @@ while [ $# -gt 0 ]; do
  shift
 done
 
+# Add Dev prefix
+target_env=${{github.event.inputs.environment}}
+
+if [ $target_env == "dev" ]; then
+  prefix="DEV_"
+fi
+
 #######################################################
 # Variables RG
 #######################################################
-rg_name=${rg_name:-rg_connectivity}_$rg_region
+rg_name=$prefix${rg_name:-rg_connectivity}_$rg_region
 
 vnet_core_name=vnet-core-$rg_region
 vnet_core_cidr='10.0.0.0/16'
