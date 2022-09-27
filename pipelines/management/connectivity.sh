@@ -23,8 +23,6 @@ while [ $# -gt 0 ]; do
 done
 
 # Add Dev prefix
-target_env=${{github.event.inputs.environment}}
-
 if [ $target_env == "dev" ]; then
   prefix="DEV_"
 fi

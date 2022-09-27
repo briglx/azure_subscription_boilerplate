@@ -36,7 +36,9 @@ jobs:
   Delete_Resources:
     name: Delete Connectivity Resources
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.deleteAll == 'true' }}
+    if: |
+      github.event.inputs.deleteAll == 'true' ||  
+      (github.event_name == 'push' && github.ref == 'refs/heads/dev')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -71,7 +73,10 @@ jobs:
     needs: Delete_Resources
     if: |
       !failure() && !cancelled() && 
-      (github.event.inputs.deployConnectivity == 'true')
+      (
+        github.event.inputs.deployConnectivity == 'true' || 
+        (github.event_name == 'push' && github.ref == 'refs/heads/dev')
+      )
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
