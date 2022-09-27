@@ -25,7 +25,7 @@ on:
         type: choice
         options:
         - dev
-        - prod 
+        - production 
 
 permissions:
   id-token: write # This is required for requesting the JWT
