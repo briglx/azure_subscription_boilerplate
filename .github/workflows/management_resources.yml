@@ -1,8 +1,5 @@
 name: Management RG Deployment
 on:
-  push:
-    branches:
-      - dev
   workflow_dispatch:
     inputs:
       deleteAll:
@@ -16,7 +13,7 @@ on:
       location:
         description: 'Resource Group location'
         required: true
-        default: 'westus2'
+        default: 'westus3'
         type: string
       environment:
         description: 'Environment to deploy to'
@@ -100,3 +97,7 @@ jobs:
           
           echo create $target_env connectivity rg in $rg_region 
           ./pipelines/management/connectivity.sh --rg_region $rg_region --target_env $target_env
+
+  # Migrate_Database:
+  #   runs-on: ubuntu-latest
+
