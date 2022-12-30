@@ -30,6 +30,9 @@ fi
 #######################################################
 # Variables RG
 #######################################################
-rg_name=$prefix${rg_name:-rg_connectivity}
+rg_name=$prefix${rg_name:-rg_common}
 
-vnet_core_name=vnet-hub-core-$rg_region
+# resource group
+echo creating $rg_name in $rg_region
+az group create --name $rg_name --location $rg_region
+

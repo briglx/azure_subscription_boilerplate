@@ -12,13 +12,13 @@ on:
         required: true
         default: 'Unknown'
         type: string
-      src_user:
-        description: 'Source Database Username'
+      src_db_user_kv_key:
+        description: 'Keyvalut Key for Database Username'
         required: true
         default: 'Unknown'
         type: string
-      src_user_password:
-        description: 'Source Database User Password'
+      src_db_password_kv_key:
+        description: 'Keyvault Key for Database User Password'
         required: true
         default: 'Unknown'
         type: string
@@ -32,13 +32,13 @@ on:
         required: true
         default: 'Unknown'
         type: string
-      dest_user:
-        description: 'Destination Database Username'
+      dest_db_user_kv_key:
+        description: 'Keyvalut Key for Database Username'
         required: true
         default: 'Unknown'
         type: string
-      dest_user_password:
-        description: 'Destination Database User Password'
+      dest_db_password_kv_key:
+        description: 'Keyvalut Key for Database User Password'
         required: true
         default: 'Unknown'
         type: string
@@ -49,15 +49,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
+      - uses: Azure/get-keyvault-secrets@v1
+        with: 
+          keyvault: "containervault"
+          secrets: 'src_user, src_user_password, dest_user, dest_password'
+        id: get_secrets
       - name: Migrate Database
         uses: ./database
         env:
           src_host: ${{ inputs.src_host }}
           src_database: ${{ inputs.src_database }}          
-          src_user: ${{ inputs.src_user }}
-          src_user_password: ${{ inputs.src_user_password }}          
+          src_user: ${{ steps.get_secrets.outputs.src_user }}
+          src_user_password: ${{ steps.get_secrets.outputs.src_user_password }}       
           dest_host: ${{ inputs.dest_host }}
           dest_database: ${{ inputs.dest_database }}          
-          dest_user: ${{ inputs.dest_user }}
-          dest_user_password: ${{ inputs.dest_user_password }}  
+          dest_user: ${{ steps.get_secrets.outputs.dest_user }}
+          dest_user_password: ${{ steps.get_secrets.outputs.dest_password }}

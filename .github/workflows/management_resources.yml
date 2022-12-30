@@ -10,6 +10,10 @@ on:
         description: 'Deploy Connectivity Resource Group'
         type: boolean
         required: false 
+      deployCommonServices:
+        description: 'Deploy Common Services Resource Group'
+        type: boolean
+        required: false 
       location:
         description: 'Resource Group location'
         required: true
@@ -97,6 +101,36 @@ jobs:
           
           echo create $target_env connectivity rg in $rg_region 
           ./pipelines/management/connectivity.sh --rg_region $rg_region --target_env $target_env
+
+  Common_Services_Resources:
+    name: Create Common Services Resources
+    runs-on: ubuntu-latest
+    needs: Delete_Resources
+    if: |
+      !failure() && !cancelled() && 
+      (
+        github.event.inputs.deployCommonServices == 'true' || 
+        (github.event_name == 'push' && github.ref == 'refs/heads/dev')
+      )
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: OIDC Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+      - name: Create Resources
+        id: task-create-resources
+        run: |
+
+          # Get params
+          target_env=${{github.event.inputs.environment}}
+          rg_region=${{github.event.inputs.location}}
+          
+          echo create $target_env common services rg in $rg_region 
+          ./pipelines/management/common_services.sh --rg_region $rg_region --target_env $target_env
 
   # Migrate_Database:
   #   runs-on: ubuntu-latest
