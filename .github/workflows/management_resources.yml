@@ -101,6 +101,6 @@ jobs:
           echo create $target_env connectivity rg in $rg_region 
           ./pipelines/management/connectivity.sh --rg_region $rg_region --target_env $target_env
 
-  Migrate_Database:
-    runs-on: ubuntu-latest
+  # Migrate_Database:
+  #   runs-on: ubuntu-latest
 
