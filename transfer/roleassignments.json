@@ -1,0 +1,48 @@
+[
+  {
+    "canDelegate": null,
+    "condition": null,
+    "conditionVersion": null,
+    "description": null,
+    "id": "/subscriptions/cd3b4810-bb97-4f99-9eaa-20c547ee30cb/providers/Microsoft.Authorization/roleAssignments/0d0f14a1-89a9-40ef-847b-c0a9d834bcc2",
+    "name": "0d0f14a1-89a9-40ef-847b-c0a9d834bcc2",
+    "principalId": "3a97d443-c523-4956-b836-26a3d212dfa5",
+    "principalName": "https://spn/8nk1z8Nt1%2bwjS6l2iTCLlroM6f7i1gh8Ik33vMtGC48%3d",
+    "principalType": "ServicePrincipal",
+    "roleDefinitionId": "/subscriptions/cd3b4810-bb97-4f99-9eaa-20c547ee30cb/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+    "roleDefinitionName": "Contributor",
+    "scope": "/subscriptions/cd3b4810-bb97-4f99-9eaa-20c547ee30cb",
+    "type": "Microsoft.Authorization/roleAssignments"
+  },
+  
+  {
+    "canDelegate": null,
+    "condition": null,
+    "conditionVersion": null,
+    "description": null,
+    "id": "/subscriptions/cd3b4810-bb97-4f99-9eaa-20c547ee30cb/providers/Microsoft.Authorization/roleAssignments/59388aa3-7dee-49b9-bc09-ba70ac22e369",
+    "name": "59388aa3-7dee-49b9-bc09-ba70ac22e369",
+    "principalId": "b1bb636d-1da3-4c39-91bc-ce964366a8e5",
+    "principalName": "http://azure-cli-2019-12-12-22-08-34",
+    "principalType": "ServicePrincipal",
+    "roleDefinitionId": "/subscriptions/cd3b4810-bb97-4f99-9eaa-20c547ee30cb/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+    "roleDefinitionName": "Contributor",
+    "scope": "/subscriptions/cd3b4810-bb97-4f99-9eaa-20c547ee30cb",
+    "type": "Microsoft.Authorization/roleAssignments"
+  },
+  {
+    "canDelegate": null,
+    "condition": null,
+    "conditionVersion": null,
+    "description": null,
+    "id": "/subscriptions/cd3b4810-bb97-4f99-9eaa-20c547ee30cb/providers/Microsoft.Authorization/roleAssignments/bcd2c379-2700-437d-ac92-760d6b6d7f21",
+    "name": "bcd2c379-2700-437d-ac92-760d6b6d7f21",
+    "principalId": "b150649f-1714-4ccc-94ab-81869909bfe2",
+    "principalName": "http://hon_corp_networking_python_script_app",
+    "principalType": "ServicePrincipal",
+    "roleDefinitionId": "/subscriptions/cd3b4810-bb97-4f99-9eaa-20c547ee30cb/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+    "roleDefinitionName": "Contributor",
+    "scope": "/subscriptions/cd3b4810-bb97-4f99-9eaa-20c547ee30cb",
+    "type": "Microsoft.Authorization/roleAssignments"
+  }  
+]

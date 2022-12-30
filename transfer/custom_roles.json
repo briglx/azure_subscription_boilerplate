@@ -1,0 +1,66 @@
+[
+  {
+    "roleName": "Avere Cluster Create",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "Avere Cluster Runtime Operator",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "Azure Service Deploy Release Management Contributor",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "CAL-Custom-Role",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "Dsms Role (deprecated)",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "Dsms Role (do not use)",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "ExpressRoute Administrator",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "GenevaWarmPathResourceContributor",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "masterreader",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "Microsoft OneAsset Reader",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "Office DevOps",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "GenevaWarmPathStorageBlobContributor",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "Azure Service Deploy Release Management Restricted Owner",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "Azure Service Deploy Test Release Management Key Vault Secrets User",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "Azure Service Deploy Release Management Key Vault Secrets User",
+    "roleType": "CustomRole"
+  },
+  {
+    "roleName": "MCAPS Regions DevOps Role",
+    "roleType": "CustomRole"
+  }
+]

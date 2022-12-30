@@ -1,0 +1,63 @@
+name: Migrate Database
+on: 
+  workflow_dispatch:
+    inputs:
+      src_host:
+        description: 'Source Database Host Name'
+        required: true
+        default: 'Unknown'
+        type: string
+      src_database:
+        description: 'Source Database Name'
+        required: true
+        default: 'Unknown'
+        type: string
+      src_user:
+        description: 'Source Database Username'
+        required: true
+        default: 'Unknown'
+        type: string
+      src_user_password:
+        description: 'Source Database User Password'
+        required: true
+        default: 'Unknown'
+        type: string
+      dest_host:
+        description: 'Destination Database Host Name'
+        required: true
+        default: 'Unknown'
+        type: string
+      dest_database:
+        description: 'Destination Database Name'
+        required: true
+        default: 'Unknown'
+        type: string
+      dest_user:
+        description: 'Destination Database Username'
+        required: true
+        default: 'Unknown'
+        type: string
+      dest_user_password:
+        description: 'Destination Database User Password'
+        required: true
+        default: 'Unknown'
+        type: string
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    name: database
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Migrate Database
+        uses: ./database
+        env:
+          src_host: ${{ inputs.src_host }}
+          src_database: ${{ inputs.src_database }}          
+          src_user: ${{ inputs.src_user }}
+          src_user_password: ${{ inputs.src_user_password }}          
+          dest_host: ${{ inputs.dest_host }}
+          dest_database: ${{ inputs.dest_database }}          
+          dest_user: ${{ inputs.dest_user }}
+          dest_user_password: ${{ inputs.dest_user_password }}  
