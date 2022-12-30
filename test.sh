@@ -1,0 +1,26 @@
+#!/bin/sh -l
+set -e
+
+echo "Printing Pass Arguments...\n"
+printf '%d args:' "$#"
+printf " '%s'" "$@"
+printf '\n\n'
+
+
+echo "Printing Environment Variables...\n"
+printenv
+printf '\n'
+
+echo "Migration started: $(date)"
+
+prefix=${prefix:-dump}
+src_user=${src_user:-postgres}
+src_dbname=${src_dbname:-postgres}
+src_host=${src_host:-db}
+pg_port=${pg_port:-5432}
+
+cur_date=$(date +%Y%m%d_%H%M%S)
+migration_file_name="/dump/$prefix-$cur_date.sql"
+
+echo $migration_file_name
+# echo "migration_file_name=$migration_file_name" >> $GITHUB_OUTPUT

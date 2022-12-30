@@ -11,7 +11,7 @@ set -e
 
 # Global
 prefix=''
-rg_region=${rg_region:-westus2}
+rg_region=${rg_region:-westus3}
 
 # Parse params
 while [ $# -gt 0 ]; do
@@ -30,20 +30,20 @@ fi
 #######################################################
 # Variables RG
 #######################################################
-rg_name=$prefix${rg_name:-rg_connectivity}_$rg_region
+rg_name=$prefix${rg_name:-rg_connectivity}
 
-vnet_core_name=vnet-core-$rg_region
+vnet_core_name=vnet-hub-core-$rg_region
 vnet_core_cidr='10.0.0.0/16'
 vnet_core_subnet_bastion_name=AzureBastionSubnet
 vnet_core_subnet_bastion_cidr='10.0.255.64/27'
 vnet_core_subnet_bastion_ip_bastion_name=core_bastion_ip
 vnet_core_subnet_bastion_bastion_core_name=core_bastion
 vnet_core_subnet_jump_box_name=snet-jumpbox
-vnet_core_subnet_jump_box_cidr='10.0.1.0/29'
+vnet_core_subnet_jump_box_cidr='10.0.0.0/29'
 vnet_core_subnet_firewall_name=snet-firewall
-vnet_core_subnet_firewall_cidr='10.0.1.8/29'
+vnet_core_subnet_firewall_cidr='10.0.0.8/29'
 vnet_core_subnet_management_name=snet-management
-vnet_core_subnet_management_cidr='10.0.1.64/26'
+vnet_core_subnet_management_cidr='10.0.0.64/26'
 
 vnet_dev_name=vnet-dev-$rg_region
 vnet_dev_cidr='10.1.0.0/16'
