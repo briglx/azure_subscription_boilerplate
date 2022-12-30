@@ -1,161 +1,161 @@
-name: Management RG Deployment
-# on:
-#   push:
-#     branches:
-#       - dev
-#   workflow_dispatch:
-#     inputs:
-#       deleteAll:
-#         description: 'Delete Resource Group'
-#         type: boolean
-#         required: true 
-#       deployConnectivity:
-#         description: 'Deploy Connectivity Resource Group'
-#         type: boolean
-#         required: false 
-#       location:
-#         description: 'Resource Group location'
-#         required: true
-#         default: 'westus2'
-#         type: string
-#       environment:
-#         description: 'Environment to deploy to'
-#         required: true
-#         default: 'dev' 
-#         type: choice
-#         options:
-#         - dev
-#         - production 
+# name: Management RG Deployment
+# # on:
+# #   push:
+# #     branches:
+# #       - dev
+# #   workflow_dispatch:
+# #     inputs:
+# #       deleteAll:
+# #         description: 'Delete Resource Group'
+# #         type: boolean
+# #         required: true 
+# #       deployConnectivity:
+# #         description: 'Deploy Connectivity Resource Group'
+# #         type: boolean
+# #         required: false 
+# #       location:
+# #         description: 'Resource Group location'
+# #         required: true
+# #         default: 'westus2'
+# #         type: string
+# #       environment:
+# #         description: 'Environment to deploy to'
+# #         required: true
+# #         default: 'dev' 
+# #         type: choice
+# #         options:
+# #         - dev
+# #         - production 
 
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
+# permissions:
+#   id-token: write # This is required for requesting the JWT
+#   contents: read  # This is required for actions/checkout
 
-jobs:
+# jobs:
 
-  Delete_Resources:
-    name: Delete Connectivity Resources
-    runs-on: ubuntu-latest
-    if: |
-      github.event.inputs.deleteAll == 'true' ||  
-      (github.event_name == 'push' && github.ref == 'refs/heads/dev')
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: OIDC Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
-      - name: Delete Resources
-        id: task-delete-resources
-        run: |
+#   Delete_Resources:
+#     name: Delete Connectivity Resources
+#     runs-on: ubuntu-latest
+#     if: |
+#       github.event.inputs.deleteAll == 'true' ||  
+#       (github.event_name == 'push' && github.ref == 'refs/heads/dev')
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#       - name: OIDC Login to Azure
+#         uses: azure/login@v1
+#         with:
+#           client-id: ${{ secrets.AZURE_CLIENT_ID }}
+#           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+#           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+#       - name: Delete Resources
+#         id: task-delete-resources
+#         run: |
 
-          # Add Dev prefix
-          target_env=${{github.event.inputs.environment}}
-          prefix=''
+#           # Add Dev prefix
+#           target_env=${{github.event.inputs.environment}}
+#           prefix=''
 
-          if [ target_env == "dev" ]; then
-            prefix="DEV_"
-          fi
-          # Get Resource Group region
-          rg_region=${{github.event.inputs.location}}
-          rg_name=${prefix}rg_connectivity_${rg_region}
+#           if [ target_env == "dev" ]; then
+#             prefix="DEV_"
+#           fi
+#           # Get Resource Group region
+#           rg_region=${{github.event.inputs.location}}
+#           rg_name=${prefix}rg_connectivity_${rg_region}
 
-          {
-            echo deleting resource group $rg_name
-            az group delete --name $rg_name --yes && 
-            echo echo done deleting resource group $rg_name
+#           {
+#             echo deleting resource group $rg_name
+#             az group delete --name $rg_name --yes && 
+#             echo echo done deleting resource group $rg_name
 
-          } || {
-            echo failed deleting resource group $rg_name
-          }
+#           } || {
+#             echo failed deleting resource group $rg_name
+#           }
           
-  Connectivity_Resources:
-    name: Create Connectivity Resources
-    runs-on: ubuntu-latest
-    needs: Delete_Resources
-    if: |
-      !failure() && !cancelled() && 
-      (
-        github.event.inputs.deployConnectivity == 'true' || 
-        (github.event_name == 'push' && github.ref == 'refs/heads/dev')
-      )
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: OIDC Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
-      - name: Update Parameters
-        id: step-update-parameters
-        run: |
+#   Connectivity_Resources:
+#     name: Create Connectivity Resources
+#     runs-on: ubuntu-latest
+#     needs: Delete_Resources
+#     if: |
+#       !failure() && !cancelled() && 
+#       (
+#         github.event.inputs.deployConnectivity == 'true' || 
+#         (github.event_name == 'push' && github.ref == 'refs/heads/dev')
+#       )
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#       - name: OIDC Login to Azure
+#         uses: azure/login@v1
+#         with:
+#           client-id: ${{ secrets.AZURE_CLIENT_ID }}
+#           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+#           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+#       - name: Update Parameters
+#         id: step-update-parameters
+#         run: |
 
-            $templateFilePath = "./pipelines/artifacts/deploy.json"
-            $parameterFilePath = "./pipelines/artifacts/parameters.json"
-            $parameterUpdatedFilePath = "./pipelines/parameters.updated.json"
+#             $templateFilePath = "./pipelines/artifacts/deploy.json"
+#             $parameterFilePath = "./pipelines/artifacts/parameters.json"
+#             $parameterUpdatedFilePath = "./pipelines/parameters.updated.json"
             
-            $paramsRaw = Get-Content $parameterFilePath -Raw
-            $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
-            $json = ConvertFrom-Json $paramsSanitized -AsHashTable
+#             $paramsRaw = Get-Content $parameterFilePath -Raw
+#             $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
+#             $json = ConvertFrom-Json $paramsSanitized -AsHashTable
             
-            # Replace with Pipeline parameters
-            $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
-            $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
-            $json.parameters.location.value = "${{ env.location }}"
-            $json.parameters.resourcegroupname.value = "${{ github.event.inputs.resourceGroupName }}"
+#             # Replace with Pipeline parameters
+#             $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
+#             $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
+#             $json.parameters.location.value = "${{ env.location }}"
+#             $json.parameters.resourcegroupname.value = "${{ github.event.inputs.resourceGroupName }}"
             
-            $json.parameters.soCWvdPrincipalIds.value = "${{ env.soc_service_principal_ids }}" 
-            New-Item -Path $parameterUpdatedFilePath -Force
-            ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
-            Write-Verbose 'Handling subscription level deployment' -Verbose
-            $ValidationErrors = $null
-            echo "Parameters updated path:" $parameterUpdatedFilePath
-            # Save Param file so next step can pick up
-            echo ::set-output name=parameterUpdatedFilePath::$parameterUpdatedFilePath
-            $text = Get-Content $parameterUpdatedFilePath -Raw 
-            echo "contents are:" $text
-            # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters $parameterUpdatedFilePath
-            # if ($ValidationErrors) {
-            #   Write-Error "Template is not valid."
-            # }
+#             $json.parameters.soCWvdPrincipalIds.value = "${{ env.soc_service_principal_ids }}" 
+#             New-Item -Path $parameterUpdatedFilePath -Force
+#             ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
+#             Write-Verbose 'Handling subscription level deployment' -Verbose
+#             $ValidationErrors = $null
+#             echo "Parameters updated path:" $parameterUpdatedFilePath
+#             # Save Param file so next step can pick up
+#             echo ::set-output name=parameterUpdatedFilePath::$parameterUpdatedFilePath
+#             $text = Get-Content $parameterUpdatedFilePath -Raw 
+#             echo "contents are:" $text
+#             # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters $parameterUpdatedFilePath
+#             # if ($ValidationErrors) {
+#             #   Write-Error "Template is not valid."
+#             # }
 
-      - name: Validate Deployment
-        id: task-validate
-        run |
-          Write-Verbose 'Handling subscription level deployment' -Verbose
+#       - name: Validate Deployment
+#         id: task-validate
+#         run |
+#           Write-Verbose 'Handling subscription level deployment' -Verbose
           
-          $ValidationErrors = $null
-          $deployment_name = "${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}-validate"
-          $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
-          $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+#           $ValidationErrors = $null
+#           $deployment_name = "${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}-validate"
+#           $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+#           $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
           
-          az deployment sub validate --name $deployment_name --location "${{ env.location }}" --template-file $templateFilePath --parameters $parameterUpdatedFilePath
+#           az deployment sub validate --name $deployment_name --location "${{ env.location }}" --template-file $templateFilePath --parameters $parameterUpdatedFilePath
           
-          if ($ValidationErrors) {
-            Write-Error "Template is not valid."
-          }
+#           if ($ValidationErrors) {
+#             Write-Error "Template is not valid."
+#           }
 
-      - name: Create Deployment
-        id: task-deploy
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            Write-Verbose 'Handling subscription level deployment' -Verbose
+#       - name: Create Deployment
+#         id: task-deploy
+#         uses: azure/powershell@v1
+#         with:
+#           inlineScript: |
+#             Write-Verbose 'Handling subscription level deployment' -Verbose
             
-            $ValidationErrors = $null
+#             $ValidationErrors = $null
             
-            $deployment_name = "${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}-validate"
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
-            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+#             $deployment_name = "${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}-validate"
+#             $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+#             $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
             
-            az deployment sub create --name $deployment_name --location "${{ env.location }}" --template-file $templateFilePath --parameters $parameterUpdatedFilePath
+#             az deployment sub create --name $deployment_name --location "${{ env.location }}" --template-file $templateFilePath --parameters $parameterUpdatedFilePath
            
-            if ($ValidationErrors) {
-              Write-Error "Template is not valid."
-            }
-          azPSVersion: "latest"
+#             if ($ValidationErrors) {
+#               Write-Error "Template is not valid."
+#             }
+#           azPSVersion: "latest"
