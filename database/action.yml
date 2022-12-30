@@ -56,11 +56,11 @@ runs:
 
   using: 'docker'
   image: 'Dockerfile'
-    args:
-      - ${{ inputs.src_host }}
-      - ${{ inputs.src_database }}
-      - ${{ inputs.src_user_password }}
-      - ${{ inputs.dest_host }}
-      - ${{ inputs.dest_database }}
-      - ${{ inputs.dest_user }}
-      - ${{ inputs.dest_user_password }}
+  args:
+    - ${{ inputs.src_host }}
+    - ${{ inputs.src_database }}
+    - ${{ inputs.src_user_password }}
+    - ${{ inputs.dest_host }}
+    - ${{ inputs.dest_database }}
+    - ${{ inputs.dest_user }}
+    - ${{ inputs.dest_user_password }}
