@@ -1,0 +1,66 @@
+name: 'Boilerplate: database'
+description: 'Boilerplate: database'
+inputs:
+  inputs:
+    src_host:
+      description: 'Source Database Host Name'
+      required: true
+      default: 'Unknown'
+      type: string
+    src_database:
+      description: 'Source Database Name'
+      required: true
+      default: 'Unknown'
+      type: string
+    src_user:
+      description: 'Source Database Username'
+      required: true
+      default: 'Unknown'
+      type: string
+    src_user_password:
+      description: 'Source Database User Password'
+      required: true
+      default: 'Unknown'
+      type: string
+    dest_host:
+      description: 'Destination Database Host Name'
+      required: true
+      default: 'Unknown'
+      type: string
+    dest_database:
+      description: 'Destination Database Name'
+      required: true
+      default: 'Unknown'
+      type: string
+    dest_user:
+      description: 'Destination Database Username'
+      required: true
+      default: 'Unknown'
+      type: string
+    dest_user_password:
+      description: 'Destination Database User Password'
+      required: true
+      default: 'Unknown'
+      type: string
+  outputs:
+    migration_file_name:
+      description: 'The migration dump file.'
+runs:
+  using: "composite"
+  # steps:
+  #   - shell: bash
+  #     run: |
+  #       docker run --rm -v -e prefix=backup postgres
+  #     env:
+  #       src_host: ${{ inputs.src_host }}
+
+  using: 'docker'
+  image: 'Dockerfile'
+    args:
+    - ${{ inputs.src_host }}
+    - ${{ inputs.src_database }}
+    - ${{ inputs.src_user_password }}
+    - ${{ inputs.dest_host }}
+    - ${{ inputs.dest_database }}
+    - ${{ inputs.dest_user }}
+    - ${{ inputs.dest_user_password }}
