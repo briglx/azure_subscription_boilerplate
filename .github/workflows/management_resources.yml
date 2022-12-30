@@ -1,8 +1,5 @@
 name: Management RG Deployment
 on:
-  # push:
-  #   branches:
-  #     - dev
   workflow_dispatch:
     inputs:
       deleteAll:

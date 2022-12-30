@@ -1,7 +1,8 @@
 name: Hello World
 on: 
   workflow_dispatch:
-    who-to-greet:
+    inputs:
+      who-to-greet:
         description: 'Name'
         required: true
         default: 'Unknown'
