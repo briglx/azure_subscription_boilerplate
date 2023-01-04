@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       addSecret:
-        description: 'Create a secret (if one doesn't exist) or update a secret in a KeyVault'
+        description: 'Create or update a secret in a KeyVault.'
         type: boolean
         required: false 
       secret:
