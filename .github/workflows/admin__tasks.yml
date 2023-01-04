@@ -1,0 +1,98 @@
+name: IaC Admin Tasks
+on:
+  workflow_dispatch:
+    inputs:
+      addSecret:
+        description: 'Create a secret (if one doesn't exist) or update a secret in a KeyVault'
+        type: boolean
+        required: false 
+      secrete:
+        description: 'Name of the secret.'
+        required: true
+        type: string
+      vault:
+        description: 'Name of the secret.'
+        required: true
+        type: string
+      location:
+        description: 'Resource Group location'
+        required: true
+        default: 'westus3'
+        type: string
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev' 
+        type: choice
+        options:
+        - dev
+        - production
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+
+jobs:
+
+  Create_Secret:
+    name: Create/Update Vault Secret
+    runs-on: ubuntu-latest
+    if: github.event.inputs.addSecret == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: OIDC Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+      
+      - name: Get KeyVault Name
+        id: get-vault-name
+        run: |
+
+          # Add Dev prefix
+          target_env=${{github.event.inputs.environment}}
+          prefix=''
+
+          if [ target_env == "dev" ]; then
+            prefix="DEV_"
+          fi
+          # Get Resource Group region
+          rg_region=${{github.event.inputs.location}}
+          rg_name=${prefix}rg_common_${rg_region}
+
+          {
+            echo creating secret in $rg_name
+            vault_id=$(az keyvault list --resource-group $rg_name --query id --out tsv)
+            
+            echo done creating secret in $rg_name
+          } || {
+            echo failed creating secret in $rg_name
+          }
+      
+      - name: Create Key
+        id: task-create-key
+        run: |
+
+          # Add Dev prefix
+          target_env=${{github.event.inputs.environment}}
+          prefix=''
+
+          if [ target_env == "dev" ]; then
+            prefix="DEV_"
+          fi
+          # Get Resource Group region
+          rg_region=${{github.event.inputs.location}}
+          rg_name=${prefix}rg_connectivity_${rg_region}
+
+          {
+            echo creating secret in $rg_name
+            az keyvault secret set --name ${{github.event.inputs.secret}} --vault-name  ${{github.event.inputs.vault}}
+
+            echo done creating secret in $rg_name
+          } || {
+            echo failed creating secret in $rg_name
+          }

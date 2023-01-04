@@ -2,7 +2,7 @@
 #######################################################
 # Common Services RG Script
 # Params
-# --rg_region Resource Region. Default westus2
+# --rg_region Resource Region. Default westus3
 #######################################################
 echo starting script
 
@@ -30,12 +30,10 @@ fi
 #######################################################
 # Variables RG
 #######################################################
-rg_name=$prefix${rg_name:-rg_common}
-
+rg_name=$prefix${rg_name:-rg_common}$rg_region
 
 let "randomIdentifier=$RANDOM*$RANDOM"
 kv_name="keyvault-$randomIdentifier"
-
 
 # resource group
 echo creating $rg_name in $rg_region

@@ -2,7 +2,7 @@
 #######################################################
 # Connectivity RG Script
 # Params
-# --rg_region Resource Region. Default westus2
+# --rg_region Resource Region. Default westus3
 #######################################################
 echo starting script
 
@@ -30,7 +30,7 @@ fi
 #######################################################
 # Variables RG
 #######################################################
-rg_name=$prefix${rg_name:-rg_connectivity}
+rg_name=$prefix${rg_name:-rg_connectivity}$rg_region
 
 vnet_core_name=vnet-hub-core-$rg_region
 vnet_core_cidr='10.0.0.0/16'
