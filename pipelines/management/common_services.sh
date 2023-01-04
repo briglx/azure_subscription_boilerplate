@@ -32,7 +32,14 @@ fi
 #######################################################
 rg_name=$prefix${rg_name:-rg_common}
 
+
+let "randomIdentifier=$RANDOM*$RANDOM"
+kv_name="keyvault-$randomIdentifier"
+
+
 # resource group
 echo creating $rg_name in $rg_region
 az group create --name $rg_name --location $rg_region
 
+# create keyvault
+az keyvault create --name $kv_name --resource-group $rg_name --location $rg_region
