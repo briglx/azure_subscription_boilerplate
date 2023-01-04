@@ -30,7 +30,7 @@ fi
 #######################################################
 # Variables RG
 #######################################################
-rg_name=$prefix${rg_name:-rg_common}$rg_region
+rg_name=$prefix${rg_name:-rg_common}_${rg_region}
 
 let "randomIdentifier=$RANDOM*$RANDOM"
 kv_name="keyvault-$randomIdentifier"
