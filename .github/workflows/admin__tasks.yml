@@ -6,11 +6,7 @@ on:
         description: 'Create a secret (if one doesn't exist) or update a secret in a KeyVault'
         type: boolean
         required: false 
-      secrete:
-        description: 'Name of the secret.'
-        required: true
-        type: string
-      vault:
+      secret:
         description: 'Name of the secret.'
         required: true
         type: string
@@ -36,7 +32,7 @@ permissions:
 jobs:
 
   Create_Secret:
-    name: Create/Update Vault Secret
+    name: Create Update Vault Secret
     runs-on: ubuntu-latest
     if: github.event.inputs.addSecret == 'true'
     steps:
@@ -76,8 +72,6 @@ jobs:
       - name: Create Key
         id: task-create-key
         run: |
-
-         echo "${{ env.action_state }}" # This will output 'yellow'
 
           {
             echo creating secret in ${{ env.vault_id }}
