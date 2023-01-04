@@ -65,34 +65,25 @@ jobs:
           rg_name=${prefix}rg_common_${rg_region}
 
           {
-            echo creating secret in $rg_name
-            vault_id=$(az keyvault list --resource-group $rg_name --query id --out tsv)
+            echo get vault name in $rg_name
+            vault_id=$(az keyvault list --resource-group $rg_name --query [].id --out tsv)
+            echo "vault_id=$vault_id" >> $GITHUB_ENV
             
-            echo done creating secret in $rg_name
           } || {
-            echo failed creating secret in $rg_name
+            echo getting creating secret in $rg_name
           }
       
       - name: Create Key
         id: task-create-key
         run: |
 
-          # Add Dev prefix
-          target_env=${{github.event.inputs.environment}}
-          prefix=''
-
-          if [ target_env == "dev" ]; then
-            prefix="DEV_"
-          fi
-          # Get Resource Group region
-          rg_region=${{github.event.inputs.location}}
-          rg_name=${prefix}rg_connectivity_${rg_region}
+         echo "${{ env.action_state }}" # This will output 'yellow'
 
           {
-            echo creating secret in $rg_name
-            az keyvault secret set --name ${{github.event.inputs.secret}} --vault-name  ${{github.event.inputs.vault}}
+            echo creating secret in ${{ env.vault_id }}
+            az keyvault secret set --name ${{github.event.inputs.secret}} --vault-name ${{ env.vault_id }}
 
-            echo done creating secret in $rg_name
+            echo done creating secret in ${{ env.vault_id }}
           } || {
-            echo failed creating secret in $rg_name
+            echo failed creating secret in ${{ env.vault_id }}
           }
