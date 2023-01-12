@@ -49,25 +49,34 @@ jobs:
         id: get-vault-name
         run: |
 
-          # Add Dev prefix
           target_env=${{github.event.inputs.environment}}
-          prefix=''
-
-          if [ target_env == "dev" ]; then
-            prefix="DEV_"
-          fi
-          # Get Resource Group region
           rg_region=${{github.event.inputs.location}}
-          rg_name=${prefix}rg_common_${rg_region}
 
-          {
-            echo get vault name in $rg_name
-            vault_id=$(az keyvault list --resource-group $rg_name --query [].id --out tsv)
-            echo "vault_id=$vault_id" >> $GITHUB_ENV
+          vault_name="$(./pipelines/scripts/get_vault_name.sh -e $target_env -r $rg_region)"
+
+          echo "vault_id=$vault_id" >> $GITHUB_ENV
+
+          # # Add Dev prefix
+          # target_env=${{github.event.inputs.environment}}
+          # prefix=''
+
+          # if [ target_env == "dev" ]; then
+          #   prefix="DEV_"
+          # fi
+          # # Get Resource Group region
+          # rg_region=${{github.event.inputs.location}}
+          # rg_name=${prefix}rg_common_${rg_region}
+
+          # {
+          #   echo get vault name in $rg_name
+          #   vault_id=$(az keyvault list --resource-group $rg_name --query [].id --out tsv)
+          #   echo "vault_id=$vault_id"
+          #   echo "vault_id=$vault_id" >> $GITHUB_ENV
             
-          } || {
-            echo failed getting vault name from $rg_name
-          }
+          # } || {
+          #   echo failed getting vault name from $rg_name
+          #   echo "${{steps.get-vault-name.outputs.result}}"
+          # }
       
       - name: Create Key
         id: task-create-key

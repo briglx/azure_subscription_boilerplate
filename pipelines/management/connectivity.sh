@@ -1,8 +1,9 @@
 #!/bin/bash
 #######################################################
-# Connectivity RG Script
+# Create Connectivity Resources.
 # Params
 # --rg_region Resource Region. Default westus3
+# --target_env Target Environment (dev, qa, prod)
 #######################################################
 echo starting script
 

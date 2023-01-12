@@ -224,6 +224,19 @@ docker container rm blx_migrate_subscription
 
 ```
 
+# Style Guidelines
+
+This project follows [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
+
+We use [ShellCheck](https://www.shellcheck.net/) to check shell scripts.
+
+# Testing
+
+```bash
+
+shellcheck script.sh
+```
+
 # References
 
 - Use Gitub Actions to connect to Azure https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows
@@ -231,3 +244,9 @@ docker container rm blx_migrate_subscription
 - CAF Migration Landing Zone - https://github.com/microsoft/CloudAdoptionFramework/tree/master/ready/migration-landing-zone-governance
 - Azure Security Benchmark https://learn.microsoft.com/en-us/azure/governance/blueprints/samples/azure-security-benchmark-foundation/
 - Transfer Subscription https://learn.microsoft.com/en-us/azure/role-based-access-control/transfer-subscription
+
+Bash 
+
+- Good Bash Examples https://linuxize.com/tags/bash/
+- Google Bash Standard https://google.github.io/styleguide/shellguide.html
+- Shell Script Linting https://www.shellcheck.net/
