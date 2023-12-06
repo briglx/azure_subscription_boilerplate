@@ -19,13 +19,13 @@ set -e
 # Globals
 PROJ_ROOT_PATH=$(cd "$(dirname "$0")"/..; pwd)
 echo "Project root: $PROJ_ROOT_PATH"
-SCRIPT_DIRECTORY="${PROJ_ROOT_PATH}/script"
-ENV_FILE="${PROJ_ROOT_PATH}/.env"
+# SCRIPT_DIRECTORY="${PROJ_ROOT_PATH}/script"
+# ENV_FILE="${PROJ_ROOT_PATH}/.env"
 
 # Global
-prefix=''
+# prefix=''
 rg_region=${rg_region:-westus3}
-iso_date_utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+# iso_date_utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
 # Parse params
 while [ $# -gt 0 ]; do
@@ -40,9 +40,11 @@ done
 # Variables RG
 #######################################################
 # Global
+app_name="app"
 rg_region="westus"
 rg_core="rg_core_$rg_region"
 
 # Variables RG
 randomIdentifier=$(( RANDOM * RANDOM ))
 rg_name="${app_name}_${rg_region}_rg"
+echo "$rg_core $rg_name $randomIdentifier"

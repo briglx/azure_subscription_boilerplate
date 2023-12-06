@@ -1,5 +1,4 @@
-#!/bin/bash
-
+# shellcheck shell=bash
 # Definition of common subroutines
 load_env(){
     local env_file="$1"
@@ -15,7 +14,7 @@ load_env(){
     else
         echo "ENV_FILE not found" >&2
         return 1
-    fi    
+    fi
 }
 
 create_resource_group(){
@@ -26,7 +25,7 @@ create_resource_group(){
 
     if az group show --name "$rg_name" &>/dev/null; then
         echo "Resource group $rg_name already exists."
-    else  
+    else
         if result=$(az group create --name "$rg_name" --location "$rg_region"); then
             echo "Creation successful"
         else
@@ -42,7 +41,7 @@ remove_resource_group(){
     # Remove Resource Group
     if az group show --name "$rg_name" &>/dev/null; then
         echo "Resource group $rg_name exists. Deleting..."
-        
+
         if result=$(az group delete --name "$rg_name" --yes); then
             echo "Deletion successful"
         else
@@ -61,7 +60,7 @@ create_vnet(){
 
     if az network vnet show --resource-group "$rg_name" --name "$vnet_name" &>/dev/null; then
         echo "vnet $vnet_name already exists."
-    else  
+    else
         if result=$(az network vnet create --resource-group "$rg_name" --name "$vnet_name" --address-prefixes "$vnet_cidr"); then
             echo "Creation successful"
         else
@@ -76,8 +75,8 @@ unique_string(){
     local rg_name="$1"
 
     unique_string=$(echo -n "$(az group show --name "$rg_name" --query id)" | md5sum | cut -c 1-13)
-    
-    echo "$unique_string" 
+
+    echo "$unique_string"
 }
 
 create_cicd_sp(){
@@ -116,7 +115,7 @@ create_cicd_sp(){
 
     # Create a service principal for the Azure Active Directory application.
     response=$(az ad sp list --all --display-name "$app_name")
-    if [[ $response == '[]' ]]; then        
+    if [[ $response == '[]' ]]; then
         response=$(az ad sp create --id "$app_id")
         if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
             echo "Failed to create ad service principal" >&2
@@ -125,7 +124,7 @@ create_cicd_sp(){
 
         app_sp_id=$(jq --raw-output .id <(echo "$response"))
 
-    else      
+    else
         app_sp_id=$(jq --raw-output .[0].id <(echo "$response"))
     fi
 
@@ -180,7 +179,7 @@ create_cicd_sp(){
             exit 1
         fi
     fi
-    
+
     echo "$app_client_id"
 
 }

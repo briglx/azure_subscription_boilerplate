@@ -5,7 +5,7 @@ on:
       addSecret:
         description: 'Create or update a secret in a KeyVault.'
         type: boolean
-        required: false 
+        required: false
       secret:
         description: 'Name of the secret.'
         required: true
@@ -18,7 +18,7 @@ on:
       environment:
         description: 'Environment to deploy to'
         required: true
-        default: 'dev' 
+        default: 'dev'
         type: choice
         options:
         - dev
@@ -43,8 +43,8 @@ jobs:
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
-      
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: Get KeyVault Name
         id: get-vault-name
         run: |
@@ -72,12 +72,12 @@ jobs:
           #   vault_id=$(az keyvault list --resource-group $rg_name --query [].id --out tsv)
           #   echo "vault_id=$vault_id"
           #   echo "vault_id=$vault_id" >> $GITHUB_ENV
-            
+
           # } || {
           #   echo failed getting vault name from $rg_name
           #   echo "${{steps.get-vault-name.outputs.result}}"
           # }
-      
+
       - name: Create Key
         id: task-create-key
         run: |

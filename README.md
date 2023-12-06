@@ -129,6 +129,13 @@ You'll need to set up a development environment if you want to develop a new fea
 ## Setup your dev environment
 
 ```bash
+# Create and activate a python virtual environment
+# virtualenv \path\to\.venv -p path\to\specific_version_python.exe
+python3 -m venv .venv
+source .venv/bin/activate
+# deactivate
+pip install -r requirements_dev.txt
+
 # Configure linting and formatting tools
 sudo apt-get update
 sudo apt-get install -y shellcheck jq
@@ -153,19 +160,22 @@ Ideally, all code is checked to verify the following:
 To run the linters, run the following commands:
 
 ```bash
-# Check for scripting errors
-shellcheck ./script/*.sh
+# Use pre-commit scripts to run all linting
+pre-commit run --all-files
+
+# Run a specific linter via pre-commit
+pre-commit run --all-files shellcheck
 ```
 
 # References
 
 - Use Gitub Actions to connect to Azure https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows
-- OpenID Connnect Auth for GitHub https://github.com/Azure/login#configure-a-service-principal-with-a-federated-credential-to-use-oidc-based-authentication
+- OpenID Connect Auth for GitHub https://github.com/Azure/login#configure-a-service-principal-with-a-federated-credential-to-use-oidc-based-authentication
 - CAF Migration Landing Zone - https://github.com/microsoft/CloudAdoptionFramework/tree/master/ready/migration-landing-zone-governance
 - Azure Security Benchmark https://learn.microsoft.com/en-us/azure/governance/blueprints/samples/azure-security-benchmark-foundation/
 - Transfer Subscription https://learn.microsoft.com/en-us/azure/role-based-access-control/transfer-subscription
 
-Bash 
+Bash
 
 - Good Bash Examples https://linuxize.com/tags/bash/
 - Google Bash Standard https://google.github.io/styleguide/shellguide.html

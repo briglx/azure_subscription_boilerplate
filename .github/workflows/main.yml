@@ -1,5 +1,5 @@
 name: Hello World
-on: 
+on:
   workflow_dispatch:
     inputs:
       who-to-greet:

@@ -17,27 +17,27 @@ rg_region=${rg_region:-westus3}
 while [ $# -gt 0 ]; do
   if [[ $1 == *"--"* ]]; then
  param="${1/--/}"
- declare $param="$2"
+ declare "$param"="$2"
   fi
  shift
 done
 
-# Add Dev prefix
-if [ $target_env == "dev" ]; then
-  prefix="DEV_"
-fi
+# # Add Dev prefix
+# if [ "$target_env" == "dev" ]; then
+#   prefix="DEV_"
+# fi
 
 #######################################################
 # Variables RG
 #######################################################
 rg_name=$prefix${rg_name:-rg_common}_${rg_region}
 
-let "randomIdentifier=$RANDOM*$RANDOM"
+randomIdentifier=$(( RANDOM * RANDOM ))
 kv_name="keyvault-$randomIdentifier"
 
 # resource group
-echo creating $rg_name in $rg_region
-az group create --name $rg_name --location $rg_region
+echo "creating $rg_name in $rg_region"
+az group create --name "$rg_name" --location "$rg_region"
 
 # create keyvault
-az keyvault create --name $kv_name --resource-group $rg_name --location $rg_region
+az keyvault create --name "$kv_name" --resource-group "$rg_name" --location "$rg_region"

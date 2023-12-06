@@ -32,21 +32,21 @@ main() {
   local ENVIRONMENT
   local REGION
   local IS_DEV_ENV
-  local option  
+  local option
   local env_infix
 
   while getopts "${OPT_STRING}" option; do
     case "${option}" in
       e) ENVIRONMENT="$OPTARG" ;;
       r) REGION="$OPTARG" ;;
-      d)  
+      d)
         IS_DEV_ENV='true'
         ENVIRONMENT="${DEV_ENV_PREFIX}"
         REGION="${DEFAULT_REGION}"
         ;;
 
       ?)
-        err "Invalid option: -$OPTARG." 
+        err "Invalid option: -$OPTARG."
         usage
         ;;
     esac
@@ -81,7 +81,7 @@ main() {
       usage
     fi
   fi
-  
+
   rg_name="${env_infix}_rg_common_${REGION}"
   vault_id="$(az keyvault list --resource-group "${rg_name}" --query [].id --out tsv)"
 

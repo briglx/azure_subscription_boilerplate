@@ -1,0 +1,28 @@
+repos:
+  - repo: "https://github.com/codespell-project/codespell"
+    rev: v2.2.2
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli
+  - repo: "https://github.com/pre-commit/pre-commit-hooks"
+    rev: v4.1.0
+    hooks:
+      - id: check-yaml
+        args: [--unsafe]
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+      - id: check-docstring-first
+      - id: fix-byte-order-marker
+      - id: check-shebang-scripts-are-executable
+      - id: check-toml
+  - repo: local
+    hooks:
+      - id: check_shellcheck
+        name: check_shellcheck
+        entry: script/pre_commit_shellcheck.sh
+        language: script
+        exclude_types: [json, sql, toml, yaml]
+        files: \.sh$
+        # files: ^(script|tests|pipelines)/.+sh$

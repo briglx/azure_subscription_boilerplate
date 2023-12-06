@@ -1,0 +1,8 @@
+[project]
+name        = "azure_subscription_boilerplate"
+version     = "2023.12.1"
+description = "briglx/azure_subscription_boilerplate project"
+readme      = "README.md"
+
+[tool.codespell]
+skip = '.*,package-lock.json'

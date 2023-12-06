@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #########################################################################
 # Onboard and manage application on cloud infrastructure.
-# Usage: devops.sh [COMMAND] 
+# Usage: devops.sh [COMMAND]
 # Globals:
 #
 # Commands
@@ -113,7 +113,7 @@ deploy(){
 
     # Update environment variables to function app
     update_environment_variables
-    
+
     echo "Cleaning up"
     rm "${zip_file_path}"
 
@@ -169,7 +169,7 @@ validate_parameters "$@"
 command=$1
 case "$command" in
     create_sp)
-        create_sp 
+        create_sp
         exit 0
         ;;
     provision)

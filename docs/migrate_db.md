@@ -18,7 +18,7 @@ dest_password=$POSTGRES_PASSWORD
 rg_region="westus3"
 rg_name="confluence_rg"
 sku="GP_Gen5_2"
-sku="Standard_B1ms" 
+sku="Standard_B1ms"
 # Specify appropriate IP address values for your environment
 # to limit / allow access to the PostgreSQL server
 startIp=$MY_IP_ADDR
@@ -38,7 +38,7 @@ echo "Creating $rg_name in $rg_region..."
 az group create --name $rg_name --location "$rg_region"
 
 # DNS Zone
-az network dns zone create --resource-group $rg_connectivity --name $dns_zone_name 
+az network dns zone create --resource-group $rg_connectivity --name $dns_zone_name
 
 # Delegation
 az network vnet subnet update --resource-group $rg_connectivity --name $confluence_subnet  --vnet-name $dev_vnet --delegations Microsoft.DBforPostgreSQL/flexibleServers
@@ -48,7 +48,7 @@ echo "Creating $dest_host in $rg_region..."
 az postgres flexible-server create --name $dest_host --resource-group $rg_name --location "$rg_region" --admin-user $dest_user --admin-password $dest_password --sku-name $sku --tier Burstable
 
 
-# Configure a firewall rule for the server 
+# Configure a firewall rule for the server
 echo "Configuring a firewall rule for $dest_host for the IP address range of $startIp to $endIp"
 # az postgres server firewall-rule create --resource-group $rg_name --server $dest_host --name AllowIps --start-ip-address $startIp --end-ip-address $endIp
 az postgres flexible-server firewall-rule create --resource-group $rg_name --name $dest_host --rule-name AllowIps --start-ip-address $startIp --end-ip-address $endIp
@@ -75,14 +75,14 @@ docker container exec -it --env-file .env postgres_tools /bin/bash
 # Stop the container
 docker container stop postgres_tools
 
-# Start the stopped container. 
+# Start the stopped container.
 docker container start postgres_tools
 
 # Remove a container
 docker container rm postgres_tools
 
 # Migrate Database
-# docker container exec -it --env-file .env postgres_tools /usr/src/app/migrate_database.sh 
+# docker container exec -it --env-file .env postgres_tools /usr/src/app/migrate_database.sh
 
 # Set Vars
 migration_file_name="migration.dump.tar"

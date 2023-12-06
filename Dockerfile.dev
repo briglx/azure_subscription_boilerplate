@@ -11,7 +11,7 @@ RUN wget -q -O sqlpackage.zip https://aka.ms/sqlpackage-linux \
     && rm sqlpackage.zip
 
 # Helpful aliases
-RUN echo 'alias ll='"'"'ls $LS_OPTIONS -al'"'"'' >> /etc/bash.bashrc 
+RUN echo 'alias ll='"'"'ls $LS_OPTIONS -al'"'"'' >> /etc/bash.bashrc
 
 # Create app directory
 RUN mkdir -p /usr/src/app

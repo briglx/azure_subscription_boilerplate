@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ######################################################
-# Create a system identity to authenticate using 
+# Create a system identity to authenticate using
 # OpenId Connect (OIDC) federated credentials.
 # Sets CICD_CLIENT_ID to .env
 # Globals:
@@ -35,7 +35,7 @@ show_help() {
 }
 
 validate_parameters(){
- 
+
     # Check AZURE_SUBSCRIPTION_ID
     if [ -z "$AZURE_SUBSCRIPTION_ID" ]
     then
@@ -78,28 +78,13 @@ validate_parameters(){
 
 }
 
-# load_env(){
-#     # Load .env
-#     if [ -f "$BASH_ENV" ]
-#     then
-#         echo "Load environment variables from ${BASH_ENV}"
-#     else
-#         echo "BASH_ENV not set. Load environment variables from project env ${ENV_FILE}"
-#         BASH_ENV="${ENV_FILE}"  
-#     fi
-
-#     # shellcheck source=.env
-#     [ -f "${BASH_ENV}" ] && while IFS= read -r line; do [[ $line =~ ^[^#]*= ]] && eval "export $line"; done < "$BASH_ENV"
-    
-# }
-
 # Globals
 PROJ_ROOT_PATH=$(cd "$(dirname "$0")"/..; pwd)
-ENV_FILE="${PROJ_ROOT_PATH}/.env" 
+ENV_FILE="${PROJ_ROOT_PATH}/.env"
 echo "Project root: $PROJ_ROOT_PATH"
 SCRIPT_DIRECTORY="${PROJ_ROOT_PATH}/script"
 
-# shellcheck source=common.sh
+# shellcheck source=./common.sh
 source "${SCRIPT_DIRECTORY}/common.sh"
 
 # Argument/Options
