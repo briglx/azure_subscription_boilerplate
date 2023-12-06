@@ -1,20 +1,36 @@
 # Azure Subscription Boilerplate
 
-Example project to setup a new azure subscription for development. This project demonstrates several technologies:
+Example project to demonstrate:
 
 * Infrastructure as Code
 * Infrastructure Automation
 * Management and Landing Zone organization
 
-Network Overview
+## Architecture Diagram
 
 ![Network Overview](docs/networkoverview.svg "Network Overview")
 
+## Components
+
+### Solution
+
+- [Azure Blob Storage](https://azure.microsoft.com/en-us/products/storage/blobs/) - Target storage account where monitoring applications saves new files.
+
+### DevOps
+
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) - Provisioning, managing and deploying the application to Azure.
+- [GitHub Actions](https://github.com/features/actions) - The CI/CD pipelines.
+- [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/overview) - The CI/CD pipelines.
+
+### Developer tools
+
+- [Visual Studio Code](https://code.visualstudio.com/) - The local IDE experience.
+- [GitHub Codespaces](https://github.com/features/codespaces) - The cloud IDE experience.
+
 # Prerequisites
 
-Prerequisites:
-- Azure CLI
 - Azure Subscription
+- Azure CLI
 - GitHub Account
 
 ## Install Azure CLI
@@ -23,25 +39,20 @@ Prerequisites:
 # Check if installed
 az --version
 
-sudo apt-get update
-sudo apt-get install ca-certificates curl apt-transport-https lsb-release gnupg
-curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+# Install azure cli
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-AZ_REPO=$(lsb_release -cs) 
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" |  sudo tee /etc/apt/sources.list.d/azure-cli.list
-
-sudo apt-get update
-sudo apt-get install azure-cli
-
-az --version
+az login --tenant $AZURE_TENANT_ID
 ```
 
 # Quick Start
 
 Get started creating a new subscription.
 
-* Clone this project and Create a local.env
+* Fork or Clone this project and configure .env settings
+* Create System Identities
 * Configure GitHub
+* Run GitHub Actions
 
 ## Clone Project
 
@@ -49,192 +60,101 @@ Get started creating a new subscription.
 # clone project
 git clone https://github.com/briglx/azure_subscription_boilerplate.git
 
-# Navigate to Recipes
+# Navigate to Project
 cd azure_subscription_boilerplate
+```
 
+Configure the environment variables. Copy example.env to .env and update the values
+
+```bash
 # Set Secrets in .env
 AZURE_TENANT_ID=ReplaceWithYourTenantId
+AZURE_TENANT_NAME=ReplaceWithYourTenantName
 AZURE_SUBSCRIPTION_ID=ReplaceWithYourSubscriptionId
 GITHUB_ORG=ReplaceWithYourGitHubOrgOrUserName
 GITHUB_REPO=RepalceWithYourRepoName
 
 cp example.env .env
 sed -i "s/<tenant_id>/$AZURE_TENANT_ID/" .env
+sed -i "s/<tenant_name>/$AZURE_TENANT_NAME/" .env
 sed -i "s/<subscription_id>/$AZURE_SUBSCRIPTION_ID/" .env
 sed -i "s/<github_org>/$GITHUB_ORG/" .env
 sed -i "s/<github_repo>/$GITHUB_REPO/" .env
 ```
+## Create System Identities
+
+The solution use system identities to deploy cloud resources. The following table lists the system identities and their purpose.
+
+| System Identities           | Authentication                                             | Authorization                                                                                                                                                                  | Purpose                                                        |
+| --------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| `env.CICD_CLIENT_NAME`      | OpenId Connect (OIDC) based Federated Identity Credentials | Subscription Contributor access<br>Microsoft Graph API admin consent Permissions: <ul><li>Directory.ReadWrite.All</li><li>User.Invite.All</li><li>User.ReadWrite.All</li></ul> | Deploy cloud resources: <ul><li>connectivity resources</li><li>Common resources</li></ul>  |
+
+```bash
+# Login to cloud cli. Only required once per install.
+az login --tenant $AZURE_TENANT_ID
+
+# Load environment variables
+source ./script/common.sh
+load_env .env
+
+# Create Azure CICD system identity
+./script/create_cicd_sh.sh
+# Adds CICD_CLIENT_ID=$created_clientid to .env
+```
 
 ## Configure GitHub
 
-Create An Azure Active Directory application, with a service principal that has contributor access to your subscription. The application uses OpenId Connect (OIDC) based Federated Identity Credentials.
-
-```bash
-# load .env vars (optional)
-[ ! -f .env ] || export $(grep -v '^#' .env | xargs)
-
-app_name=github_cicd_service_app
-app_secret_name=github_cicd_client_secret
-
-az login --tenant $AZURE_TENANT_ID
-
-# Create an Azure Active Directory application and a service principal.
-app_id=$(az ad app create --display-name $app_name --query id -o tsv)
-app_client_id=$(az ad app list --display-name $app_name --query [].appId -o tsv)
-# Save app_id to .env APP_CLIENT_ID
-echo AZURE_CLIENT_ID=$app_client_id >> .env
-az ad sp create --id $app_id
-
-# Assign contributor role to the app service principal
-app_sp_id=$(az ad sp list --all --display-name $app_name --query "[].id" -o tsv)
-az role assignment create --assignee $app_sp_id --role contributor --scope /subscriptions/$AZURE_SUBSCRIPTION_ID
-az role assignment create --role contributor --subscription $AZURE_SUBSCRIPTION_ID --assignee-object-id  $app_sp_id --assignee-principal-type ServicePrincipal --scope /subscriptions/$AZURE_SUBSCRIPTION_ID
-
-# Add OIDC federated credentials for the application.
-post_body="{\"name\":\"$app_secret_name\","
-post_body=$post_body'"issuer":"https://token.actions.githubusercontent.com",'
-post_body=$post_body"\"subject\":\"repo:$GITHUB_ORG/$GITHUB_REPO:ref:refs/heads/main\","
-post_body=$post_body'"description":"GitHub CICID Service","audiences":["api://AzureADTokenExchange"]}' 
-az rest --method POST --uri "https://graph.microsoft.com/beta/applications/$app_id/federatedIdentityCredentials" --body "$post_body"
-
-```
-
 Create GitHub secrets for storing Azure configuration.
 
-- Open your GitHub repository and go to Settings.
-- Select Secrets and then New Secret.
-- Create secrets for `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID` from values in .env
+Open your GitHub repository and go to Settings. Select Secrets and then New Secret. Create secrets with values from `.env` for:
 
-# Migrate
+- `AZURE_TENANT_ID`
+- `AZURE_SUBSCRIPTION_ID`
+- `CICD_CLIENT_ID`
 
-## Confluence
+## Run GitHub Actions
 
-Migrate database
+| Workflow | Description |
+| -------- | ----------- |
+| platform_connectivity | Provision and manage connectivity resources. |
+| platform_common | Provision and manage common resources. |
+
+* Run platform_connectivity workflow to create vnets, subnets, and peering.
+* Run platform_common workflow to create common resources.
+
+# Development
+
+You'll need to set up a development environment if you want to develop a new feature or fix issues.
+
+## Setup your dev environment
 
 ```bash
-# Vars
-let "randomIdentifier=$RANDOM*$RANDOM"
-src_host=$CONFLUENCE_SERVER_NAME
-src_dbname=$CONFLUENCE_DB_NAME
-src_user=$POSTGRES_USER
-src_password=$POSTGRES_PASSWORD
-dest_host="confluence-postgresql-server-$randomIdentifier"
-dest_user=$POSTGRES_USER
-dest_password=$POSTGRES_PASSWORD
-rg_region="westus3"
-rg_name="confluence_rg"
-sku="GP_Gen5_2"
-sku="Standard_B1ms" 
-# Specify appropriate IP address values for your environment
-# to limit / allow access to the PostgreSQL server
-startIp=$MY_IP_ADDR
-endIp=$MY_IP_ADDR
+# Configure linting and formatting tools
+sudo apt-get update
+sudo apt-get install -y shellcheck jq
+pre-commit install
 
-dns_zone_name="${dest_host}.private.postgres.database.azure.com"
-
-rg_connectivity="rg_connectivity_westus3"
-dev_vnet="vnet-dev-westus3"
-confluence_subnet="snet-confluence"
-
-# Create Destination Server
-az account set -s $AZURE_SUBSCRIPTION_ID # ...or use 'az login'
-
-echo "Using resource group $rg_name with login: $dest_user"
-echo "Creating $rg_name in $rg_region..."
-az group create --name $rg_name --location "$rg_region"
-
-# DNS Zone
-az network dns zone create --resource-group $rg_connectivity --name $dns_zone_name 
-
-# Delegation
-az network vnet subnet update --resource-group $rg_connectivity --name $confluence_subnet  --vnet-name $dev_vnet --delegations Microsoft.DBforPostgreSQL/flexibleServers
-
-echo "Creating $dest_host in $rg_region..."
-# az postgres server create --name $dest_host --resource-group $rg_name --location "$rg_region" --admin-user $dest_user --admin-password $dest_password --sku-name $sku
-az postgres flexible-server create --name $dest_host --resource-group $rg_name --location "$rg_region" --admin-user $dest_user --admin-password $dest_password --sku-name $sku --tier Burstable
-
-
-# Configure a firewall rule for the server 
-echo "Configuring a firewall rule for $dest_host for the IP address range of $startIp to $endIp"
-# az postgres server firewall-rule create --resource-group $rg_name --server $dest_host --name AllowIps --start-ip-address $startIp --end-ip-address $endIp
-az postgres flexible-server firewall-rule create --resource-group $rg_name --name $dest_host --rule-name AllowIps --start-ip-address $startIp --end-ip-address $endIp
-
-
-# az postgres server show --resource-group $rg_name --name $dest_host
-az postgres flexible-server show --resource-group $rg_name --name $dest_host
-
-# Connect to db
-# PGPASSWORD=$dest_password psql "sslmode=verify-full sslrootcert=BaltimoreCyberTrustRoot.crt host=$dest_host.postgres.database.azure.com dbname=postgres user=$dest_user@$dest_host"
-PGPASSWORD=$dest_password psql --host=$dest_host.postgres.database.azure.com --port=5432 --username=$dest_user --dbname=postgres
-
-
-# Start Postgres client tools
-docker run --name postgres_tools -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -d postgres
-# Start Postgres client tools will all env variables
-docker run --name postgres_tools --env-file .env -d postgres
-
-# Get a shell to the container
-docker container exec -it postgres_tools /bin/bash
-# Get a shell to the container with env variables
-docker container exec -it --env-file .env postgres_tools /bin/bash
-
-# Stop the container
-docker container stop postgres_tools
-
-# Start the stopped container. 
-docker container start postgres_tools
-
-# Remove a container
-docker container rm postgres_tools
-
-# Migrate Database
-# docker container exec -it --env-file .env postgres_tools /usr/src/app/migrate_database.sh 
-
-# Set Vars
-migration_file_name="migration.dump.tar"
-src_host=$CONFLUENCE_SERVER_NAME
-src_dbname=$CONFLUENCE_DB_NAME
-src_user=$POSTGRES_USER
-src_password=$POSTGRES_PASSWORD
-src_host_name=$src_host.postgres.database.azure.com
-
-# Connect to Src Host
-PGPASSWORD=$src_password psql --host=$src_host_name --port=5432 --username=$src_user@$src_host --dbname=$src_dbname sslmode=verify-full sslrootcert=BaltimoreCyberTrustRoot.crt
-
-# PGPASSWORD=$src_password pg_dump -C -h $src_host_name -U $src_user@$src_host $src_dbname | gzip > $migration_file_name
-PGPASSWORD=$src_password pg_dump -C -h $src_host_name -U $src_user@$src_host -Ft  $src_dbname > $migration_file_name
-
-# Restore to the destination
-PGPASSWORD=$dest_password pg_restore -U -h $dest_host_name -U $dest_user@$dest_host -Ft -C -f $migration_file_name
-
-
-# Build the image
-docker build --pull --rm -f "Dockerfile.dev" -t blx_migrate_subscription:latest "."
-
-# Run the server
-docker run --rm -it --env-file .env --name blx_migrate_subscription blx_migrate_subscription:latest
-
-# Remove a container
-docker container rm blx_migrate_subscription
-
-# Get a shell to the container
-#docker container exec -it blx_migrate_subscription /bin/bash
-
-# docker container exec -it blx_sub_migrate /usr/src/app/create_db_package.sh bacpac
-
+# login to azure cli
+az login --tenant $TENANT_ID
 ```
 
-# Style Guidelines
+## Style Guidelines
 
 This project follows [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
 
 We use [ShellCheck](https://www.shellcheck.net/) to check shell scripts.
 
-# Testing
+## Testing
+
+Ideally, all code is checked to verify the following:
+
+- All code passes the checks from the linting tools
+
+To run the linters, run the following commands:
 
 ```bash
-
-shellcheck script.sh
+# Check for scripting errors
+shellcheck ./script/*.sh
 ```
 
 # References
