@@ -112,14 +112,19 @@ Open your GitHub repository and go to Settings. Select Secrets and then New Secr
 - `AZURE_SUBSCRIPTION_ID`
 - `CICD_CLIENT_ID`
 
-## Run GitHub Actions
+## Provision Resources
 
+The project uses scripts and GitHub Actions to provision resources. Each Github Action calls a specific script. The following table lists the workflows and their purpose.
 | Workflow | Description |
 | -------- | ----------- |
 | platform_connectivity | Provision and manage connectivity resources. |
 | platform_common | Provision and manage common resources. |
 
-* Run platform_connectivity workflow to create vnets, subnets, and peering.
+* Run platform_connectivity workflow to create vnets, subnets, and peering. This is equivalent to calling the following:
+
+    ```bash
+    ./script/devops.sh provision --jumpbox
+    ```
 * Run platform_common workflow to create common resources.
 
 # Development
@@ -166,6 +171,20 @@ pre-commit run --all-files
 # Run a specific linter via pre-commit
 pre-commit run --all-files shellcheck
 ```
+
+# Architecture Decisions
+
+For Infrastructure as code, we use `azure cli` to provision resources. Here are the different levels of parameters:
+
+| Parameters | Description | Domain |
+| ----- | ----------- |---------|
+| UI - GitHub Action Manual Trigger | Generally very simple variables that would change for each deployment. | Human Computer Interaction |
+| GitHub Action | Parameters common between deployment steps | GitActions and Deployment |
+| `devops.sh` script | Single point to control all iac automation. Call specific iac deployment. | Deployment |
+| `./iac/<specific>_deployment.sh` script | Defines a collection of resources to deploy together. Similar to a Master Arm template used to orchestrate a deployment. Uses `azure cli`. | Deploymnet and CLI |
+| `./script/common.sh` script | Modular functions to deploy resources using `azure cli`. | Deployment and CLI |
+
+Use `azure cli` in the `./iac/<specific>_deployment.sh` script where feasible. Fall back to `./script/common.sh` script if additional logic is required.
 
 # References
 

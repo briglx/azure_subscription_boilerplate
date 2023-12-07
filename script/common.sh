@@ -71,6 +71,26 @@ create_vnet(){
 
 }
 
+create_subnet(){
+    local subnet_name="$1"
+    local vnet_name="$2"
+    local rg_name="$3"
+    local subnet_cidr="$4"
+
+    echo "creating subnet $subnet_name in $vnet_name with cidr $subnet_cidr"
+
+    if az network vnet subnet show --resource-group "$rg_name" --vnet-name "$vnet_name" --name "$subnet_name" &>/dev/null; then
+        echo "subnet $subnet_name already exists."
+    else
+        if result=$(az network vnet subnet create --resource-group "$rg_name" --vnet-name "$vnet_name" --name "$subnet_name" --address-prefixes "$subnet_cidr"); then
+            echo "Creation successful"
+        else
+            echo "Creation failed"
+            echo "$result"
+        fi
+    fi
+}
+
 unique_string(){
     local rg_name="$1"
 

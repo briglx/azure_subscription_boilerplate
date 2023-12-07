@@ -10,9 +10,10 @@
 #   create_sp       Create system identity for the app.
 #   delete          Delete the app from cloud.
 # Params
-#    -n, --name
+#    -m, --message  Deployment message
 #    -h, --help     Show this message and get help for a command.
 #    -l, --location Resource location. Default westus3
+#    -j, --jumpbox  Deploy jumpbox (Default no jumpbox)
 #########################################################################
 
 # Stop on errors
@@ -30,9 +31,10 @@ show_help() {
     echo "  deploy      Prepare the app and deploy to cloud."
     echo
     echo "Arguments"
+    echo "   -m, --message          Deployment message"
     echo "   -l, --location         Resource location. Default westus3"
-    echo "   -n, --name"
     echo "   -h, --help             Show this message and get help for a command."
+    echo "   -j, --jumpbox          Deploy jumpbox (Default no jumpbox)"
     echo
 }
 
@@ -41,14 +43,6 @@ validate_parameters(){
     if [ -z "$1" ]
     then
         echo "COMMAND is required (provision | deploy)" >&2
-        show_help
-        exit 1
-    fi
-
-    # Check app name
-    if [ -z "$name" ]
-    then
-        echo "name is required" >&2
         show_help
         exit 1
     fi
@@ -66,16 +60,19 @@ create_sp(){
 }
 
 provision(){
-    local app_name=$1
-    local location=$2
+    # Provision resources for the application.
+    local location=$1
+    local jumpbox=$2
     local deployment_name="core_vnet.Provisioning-${run_date}"
 
-    echo "Location: $location"
-
-    additional_parameters=("app_name=$app_name")
+    additional_parameters=("message=$message")
     if [ -n "$location" ]
     then
         additional_parameters+=("location=$location")
+    fi
+    if [ "$jumpbox" = "true" ]
+    then
+        additional_parameters+=("jumpbox=$jumpbox")
     fi
 
     # shellcheck source=/home/brlamore/src/azure_subscription_boilerplate/pipelines/management/connectivity.sh
@@ -155,12 +152,13 @@ INFRA_DIRECTORY="${PROJ_ROOT_PATH}/pipelines/management"
 source "${SCRIPT_DIRECTORY}/common.sh"
 
 # Argument/Options
-LONGOPTS=name:,resource-group:,location:,help
-OPTIONS=n:g:l:h
+LONGOPTS=message:,resource-group:,location:,jumpbox,help
+OPTIONS=m:g:l:jh
 
 # Variables
-name=""
+message=""
 location="westus3"
+jumpbox="false"
 run_date=$(date +%Y%m%dT%H%M%S)
 # ISO_DATE_UTC=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
@@ -174,13 +172,17 @@ while true; do
             show_help
             exit
             ;;
-        -n|--name)
-            name="$2"
+        -m|--message)
+            message="$2"
             shift 2
             ;;
         -l|--location)
             location="$2"
             shift 2
+            ;;
+        -j|--jumpbox)
+            jumpbox="true"
+            shift
             ;;
         --)
             shift
@@ -202,7 +204,7 @@ case "$command" in
         exit 0
         ;;
     provision)
-        provision "$name" "$location"
+        provision "$location" "$jumpbox"
         exit 0
         ;;
     delete)
