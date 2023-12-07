@@ -5,7 +5,8 @@
 # Globals:
 #
 # Commands
-#   provision       Provision resources for the application.
+#   provision_connectivity  Provision connectivity resources.
+#   provision_common        Provision common resources.
 #   deploy          Prepare the app and deploy to cloud.
 #   create_sp       Create system identity for the app.
 #   delete          Delete the app from cloud.
@@ -26,7 +27,8 @@ show_help() {
     echo
     echo "Commands"
     echo "  create_sp   Create system identity for the app."
-    echo "  provision   Provision resources for the application."
+    echo "  provision_connectivity  Provision connectivity resources."
+    echo "  provision_common        Provision common resources."
     echo "  delete      Delete the app from cloud."
     echo "  deploy      Prepare the app and deploy to cloud."
     echo
@@ -59,7 +61,7 @@ create_sp(){
 
 }
 
-provision(){
+provision_connectivity(){
     # Provision resources for the application.
     local location=$1
     local jumpbox=$2
@@ -75,13 +77,27 @@ provision(){
         additional_parameters+=("jumpbox=$jumpbox")
     fi
 
-    # shellcheck source=/home/brlamore/src/azure_subscription_boilerplate/pipelines/management/connectivity.sh
-    source "${INFRA_DIRECTORY}/connectivity.sh"
-
-    # core_vnet
     echo "Deploying ${deployment_name} with ${additional_parameters[*]}"
-    provision_connectivity --parameters "${additional_parameters[@]}"
 
+    # shellcheck source=/home/brlamore/src/azure_subscription_boilerplate/iac/connectivity_deployment.sh
+    source "${INFRA_DIRECTORY}/connectivity_deployment.sh" --parameters "${additional_parameters[@]}"
+}
+
+provision_common(){
+    # Provision resources for the application.
+    local location=$1
+    local deployment_name="common_services.Provisioning-${run_date}"
+
+    additional_parameters=("message=$message")
+    if [ -n "$location" ]
+    then
+        additional_parameters+=("location=$location")
+    fi
+
+    echo "Deploying ${deployment_name} with ${additional_parameters[*]}"
+
+    # shellcheck source=/home/brlamore/src/azure_subscription_boilerplate/iac/common_services_deployment.sh
+    source "${INFRA_DIRECTORY}/common_services_deployment.sh" --parameters "${additional_parameters[@]}"
 }
 
 delete(){
@@ -146,7 +162,7 @@ update_environment_variables(){
 PROJ_ROOT_PATH=$(cd "$(dirname "$0")"/..; pwd)
 echo "Project root: $PROJ_ROOT_PATH"
 SCRIPT_DIRECTORY="${PROJ_ROOT_PATH}/script"
-INFRA_DIRECTORY="${PROJ_ROOT_PATH}/pipelines/management"
+INFRA_DIRECTORY="${PROJ_ROOT_PATH}/iac"
 
 # shellcheck source=common.sh
 source "${SCRIPT_DIRECTORY}/common.sh"
@@ -203,8 +219,12 @@ case "$command" in
         create_sp
         exit 0
         ;;
-    provision)
-        provision "$location" "$jumpbox"
+    provision_connectivity)
+        provision_connectivity "$location" "$jumpbox"
+        exit 0
+        ;;
+    provision_common)
+        provision_common "$location"
         exit 0
         ;;
     delete)

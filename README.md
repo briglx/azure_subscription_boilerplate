@@ -123,9 +123,13 @@ The project uses scripts and GitHub Actions to provision resources. Each Github 
 * Run platform_connectivity workflow to create vnets, subnets, and peering. This is equivalent to calling the following:
 
     ```bash
-    ./script/devops.sh provision --jumpbox
+    ./script/devops.sh provision_connectivity --jumpbox
     ```
-* Run platform_common workflow to create common resources.
+* Run platform_common workflow to create common resources. This is equivalent to calling the following:
+
+    ```bash
+    ./script/devops.sh provision_common
+    ```
 
 # Development
 
