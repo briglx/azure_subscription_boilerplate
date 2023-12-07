@@ -10,8 +10,9 @@
 #   create_sp       Create system identity for the app.
 #   delete          Delete the app from cloud.
 # Params
-#    -n, --name     Application name.
+#    -n, --name
 #    -h, --help     Show this message and get help for a command.
+#    -l, --location Resource location. Default westus3
 #########################################################################
 
 # Stop on errors
@@ -29,7 +30,8 @@ show_help() {
     echo "  deploy      Prepare the app and deploy to cloud."
     echo
     echo "Arguments"
-    echo "   -n, --name             Application name."
+    echo "   -l, --location         Resource location. Default westus3"
+    echo "   -n, --name"
     echo "   -h, --help             Show this message and get help for a command."
     echo
 }
@@ -44,7 +46,7 @@ validate_parameters(){
     fi
 
     # Check app name
-    if [ -z "$app_name" ]
+    if [ -z "$name" ]
     then
         echo "name is required" >&2
         show_help
@@ -62,8 +64,27 @@ create_sp(){
     fi
 
 }
+
 provision(){
-    echo pass
+    local app_name=$1
+    local location=$2
+    local deployment_name="core_vnet.Provisioning-${run_date}"
+
+    echo "Location: $location"
+
+    additional_parameters=("app_name=$app_name")
+    if [ -n "$location" ]
+    then
+        additional_parameters+=("location=$location")
+    fi
+
+    # shellcheck source=/home/brlamore/src/azure_subscription_boilerplate/pipelines/management/connectivity.sh
+    source "${INFRA_DIRECTORY}/connectivity.sh"
+
+    # core_vnet
+    echo "Deploying ${deployment_name} with ${additional_parameters[*]}"
+    provision_connectivity --parameters "${additional_parameters[@]}"
+
 }
 
 delete(){
@@ -128,16 +149,20 @@ update_environment_variables(){
 PROJ_ROOT_PATH=$(cd "$(dirname "$0")"/..; pwd)
 echo "Project root: $PROJ_ROOT_PATH"
 SCRIPT_DIRECTORY="${PROJ_ROOT_PATH}/script"
+INFRA_DIRECTORY="${PROJ_ROOT_PATH}/pipelines/management"
 
 # shellcheck source=common.sh
 source "${SCRIPT_DIRECTORY}/common.sh"
 
 # Argument/Options
-LONGOPTS=name:,resource-group:,help
-OPTIONS=n:g:h
+LONGOPTS=name:,resource-group:,location:,help
+OPTIONS=n:g:l:h
 
 # Variables
-app_name=""
+name=""
+location="westus3"
+run_date=$(date +%Y%m%dT%H%M%S)
+# ISO_DATE_UTC=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
 # Parse arguments
 TEMP=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
@@ -150,7 +175,11 @@ while true; do
             exit
             ;;
         -n|--name)
-            app_name="$2"
+            name="$2"
+            shift 2
+            ;;
+        -l|--location)
+            location="$2"
             shift 2
             ;;
         --)
@@ -173,7 +202,7 @@ case "$command" in
         exit 0
         ;;
     provision)
-        provision
+        provision "$name" "$location"
         exit 0
         ;;
     delete)

@@ -12,10 +12,7 @@ az role assignment list --all --include-inherited --output tsv > roleassignments
 
 # Save Custom roles
 az role definition list --custom-role-only true --output json --query '[].{roleName:roleName, roleType:roleType}'
-az role definition list --name <custom_role_name> > customrolename.json
-
-
-
+az role definition list --name custom_role_name customrolename.json
 ```
 
 # References

@@ -1,17 +1,17 @@
-name: Management RG Deployment
+name: Platform Management
 on:
   workflow_dispatch:
     inputs:
-      deleteAll:
-        description: 'Delete Resource Group'
-        type: boolean
-        required: true
-      deployConnectivity:
-        description: 'Deploy Connectivity Resource Group'
+      # deleteRG:
+      #   description: 'Delete Resource Group'
+      #   type: boolean
+      #   required: true
+      provisionConnectivity:
+        description: 'Provision Connectivity'
         type: boolean
         required: false
-      deployCommonServices:
-        description: 'Deploy Common Services Resource Group'
+      provisionCommonServices:
+        description: 'Provision Common Services Resources'
         type: boolean
         required: false
       location:
@@ -34,52 +34,51 @@ permissions:
 
 jobs:
 
-  Delete_Resources:
-    name: Delete Connectivity Resources
-    runs-on: ubuntu-latest
-    if: |
-      github.event.inputs.deleteAll == 'true' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/dev')
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: OIDC Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - name: Delete Resources
-        id: task-delete-resources
-        run: |
+  # Delete_Resources:
+  #   name: Delete Connectivity Resources
+  #   runs-on: ubuntu-latest
+  #   if: |
+  #     github.event.inputs.deleteRG == 'true' ||
+  #     (github.event_name == 'push' && github.ref == 'refs/heads/dev')
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
+  #     - name: OIDC Login to Azure
+  #       uses: azure/login@v1
+  #       with:
+  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #     - name: Delete Resources
+  #       id: task-delete-resources
+  #       run: |
 
-          # Add Dev prefix
-          target_env=${{github.event.inputs.environment}}
-          prefix=''
+  #         # Add Dev prefix
+  #         target_env=${{github.event.inputs.environment}}
+  #         prefix=''
 
-          if [ target_env == "dev" ]; then
-            prefix="DEV_"
-          fi
-          # Get Resource Group region
-          rg_region=${{github.event.inputs.location}}
-          rg_name=${prefix}rg_connectivity_${rg_region}
+  #         if [ target_env == "dev" ]; then
+  #           prefix="DEV_"
+  #         fi
+  #         # Get Resource Group region
+  #         rg_region=${{github.event.inputs.location}}
+  #         rg_name=${prefix}rg_connectivity_${rg_region}
 
-          {
-            echo deleting resource group $rg_name
-            az group delete --name $rg_name --yes &&
-            echo echo done deleting resource group $rg_name
-          } || {
-            echo failed deleting resource group $rg_name
-          }
+  #         {
+  #           echo deleting resource group $rg_name
+  #           az group delete --name $rg_name --yes &&
+  #           echo echo done deleting resource group $rg_name
+  #         } || {
+  #           echo failed deleting resource group $rg_name
+  #         }
 
   Connectivity_Resources:
     name: Create Connectivity Resources
     runs-on: ubuntu-latest
-    needs: Delete_Resources
     if: |
       !failure() && !cancelled() &&
       (
-        github.event.inputs.deployConnectivity == 'true' ||
+        github.event.inputs.provisionConnectivity == 'true' ||
         (github.event_name == 'push' && github.ref == 'refs/heads/dev')
       )
     steps:
@@ -97,10 +96,12 @@ jobs:
 
           # Get params
           target_env=${{github.event.inputs.environment}}
-          rg_region=${{github.event.inputs.location}}
+          location=${{github.event.inputs.location}}
 
-          echo create $target_env connectivity rg in $rg_region
-          ./pipelines/management/connectivity.sh --rg_region $rg_region --target_env $target_env
+          echo create connectivity rg in $location
+          ./script/devops.sh provision --name core --location "$location"
+          # ./script/devops provision network_hub --name "$hub_name" --location "$location"
+          # ./pipelines/management/connectivity.sh --rg_region $location --target_env $target_env
 
   Common_Services_Resources:
     name: Create Common Services Resources
@@ -109,7 +110,7 @@ jobs:
     if: |
       !failure() && !cancelled() &&
       (
-        github.event.inputs.deployCommonServices == 'true' ||
+        github.event.inputs.provisionCommonServices == 'true' ||
         (github.event_name == 'push' && github.ref == 'refs/heads/dev')
       )
     steps:
