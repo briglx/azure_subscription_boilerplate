@@ -25,7 +25,9 @@ Example project to demonstrate:
 ### Developer tools
 
 - [Visual Studio Code](https://code.visualstudio.com/) - The local IDE experience.
+- [Git Client](https://git-scm.com/download/win)
 - [GitHub Codespaces](https://github.com/features/codespaces) - The cloud IDE experience.
+- (Optional) [Docker](https://docs.docker.com/desktop/install/windows-install/) - Run the application in a container.
 
 # Prerequisites
 
@@ -62,6 +64,9 @@ git clone https://github.com/briglx/azure_subscription_boilerplate.git
 
 # Navigate to Project
 cd azure_subscription_boilerplate
+
+# Open Project
+code .
 ```
 
 Configure the environment variables. Copy example.env to .env and update the values
